@@ -1,0 +1,9 @@
+declare class EnvironmentVariables {
+    DATABASE_URL: string;
+    JWT_SECRET: string;
+    JWT_REFRESH_SECRET: string;
+    PORT?: number;
+    FRONTEND_URL: string;
+}
+export declare function validate(config: Record<string, unknown>): EnvironmentVariables;
+export {};

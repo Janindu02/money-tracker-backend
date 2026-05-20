@@ -1,0 +1,45 @@
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.GoogleAuthGuard = void 0;
+const common_1 = require("@nestjs/common");
+const config_1 = require("@nestjs/config");
+const passport_1 = require("@nestjs/passport");
+let GoogleAuthGuard = class GoogleAuthGuard extends (0, passport_1.AuthGuard)('google') {
+    config;
+    constructor(config) {
+        super();
+        this.config = config;
+    }
+    canActivate(context) {
+        const clientId = this.config.get('google.clientId')?.trim();
+        const clientSecret = this.config.get('google.clientSecret')?.trim();
+        if (!clientId || !clientSecret) {
+            throw new common_1.ServiceUnavailableException('Google sign-in is not configured on this server');
+        }
+        return super.canActivate(context);
+    }
+    handleRequest(err, user, info, _context) {
+        if (err) {
+            throw err;
+        }
+        if (!user) {
+            throw new common_1.UnauthorizedException(info?.message ?? 'Google authentication failed');
+        }
+        return user;
+    }
+};
+exports.GoogleAuthGuard = GoogleAuthGuard;
+exports.GoogleAuthGuard = GoogleAuthGuard = __decorate([
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [config_1.ConfigService])
+], GoogleAuthGuard);
+//# sourceMappingURL=google-auth.guard.js.map
