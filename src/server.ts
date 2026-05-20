@@ -12,6 +12,7 @@ import session from 'express-session';
 import helmet from 'helmet';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { AppModule } from './app.module';
+import { parseCorsOrigins } from './utils/cors.util';
 
 let cachedServer: Express | undefined;
 
@@ -39,6 +40,8 @@ export async function createApp(): Promise<Express> {
   );
   app.use(cookieParser());
 
+  const cookieSameSite = config.get<'lax' | 'none' | 'strict'>('cookie.sameSite', 'lax');
+
   app.use(
     session({
       secret: config.get<string>('auth.sessionSecret') ?? config.getOrThrow<string>('jwt.secret'),
@@ -48,14 +51,22 @@ export async function createApp(): Promise<Express> {
         secure: config.get<boolean>('cookie.secure', false),
         httpOnly: true,
         maxAge: 15 * 60 * 1000,
-        sameSite: 'lax',
+        sameSite: cookieSameSite,
       },
     }),
   );
 
   const frontendUrl = config.get<string>('frontendUrl') ?? 'http://localhost:3000';
+  const allowedOrigins = parseCorsOrigins(frontendUrl);
+
   app.enableCors({
-    origin: frontendUrl,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(null, false);
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],

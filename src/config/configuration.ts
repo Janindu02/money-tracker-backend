@@ -24,6 +24,7 @@ export default () => {
   cookie: {
     secure: process.env.COOKIE_SECURE === 'true',
     domain: process.env.COOKIE_DOMAIN || undefined,
+    sameSite: (process.env.COOKIE_SAME_SITE as 'lax' | 'none' | 'strict' | undefined) ?? 'lax',
   },
   auth: {
     maxSessionsPerUser: parseInt(process.env.MAX_SESSIONS_PER_USER ?? '10', 10),
