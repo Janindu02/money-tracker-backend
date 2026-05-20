@@ -31,5 +31,14 @@ export function validate(config: Record<string, unknown>) {
   if (errors.length > 0) {
     throw new Error(errors.toString());
   }
+
+  const databaseUrl = validated.DATABASE_URL;
+  const onVercel = Boolean(process.env.VERCEL);
+  if (onVercel && /localhost|127\.0\.0\.1/.test(databaseUrl)) {
+    throw new Error(
+      'DATABASE_URL points to localhost. In Vercel → Project → Settings → Environment Variables, set DATABASE_URL to your Neon connection string (Production + Preview), then redeploy.',
+    );
+  }
+
   return validated;
 }
