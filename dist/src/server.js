@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createApp = createApp;
 const common_1 = require("@nestjs/common");
+const database_url_1 = require("./config/database-url");
 const config_1 = require("@nestjs/config");
 const core_1 = require("@nestjs/core");
 const platform_express_1 = require("@nestjs/platform-express");
@@ -49,7 +50,15 @@ async function createApp() {
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization'],
     });
-    app.setGlobalPrefix('api/v1');
+    app.setGlobalPrefix('api/v1', {
+        exclude: [
+            { path: '', method: common_1.RequestMethod.GET },
+            { path: 'favicon.ico', method: common_1.RequestMethod.GET },
+            { path: 'favicon.png', method: common_1.RequestMethod.GET },
+        ],
+    });
+    const databaseUrl = config.getOrThrow('databaseUrl');
+    logger.log(`Database host: ${(0, database_url_1.getDatabaseHost)(databaseUrl)}`, 'Bootstrap');
     app.useGlobalPipes(new common_1.ValidationPipe({
         whitelist: true,
         forbidNonWhitelisted: true,

@@ -17,6 +17,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { AiInsightsModule } from './ai-insights/ai-insights.module';
 import { HealthModule } from './health/health.module';
 import { CurrencyModule } from './currency/currency.module';
+import { AppController } from './app.controller';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
@@ -27,6 +28,7 @@ import { RolesGuard } from './guards/roles.guard';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      ignoreEnvFile: Boolean(process.env.VERCEL),
       load: [configuration],
       validate,
     }),
@@ -61,6 +63,7 @@ import { RolesGuard } from './guards/roles.guard';
     AiInsightsModule,
     HealthModule,
   ],
+  controllers: [AppController],
   providers: [
     { provide: APP_FILTER, useClass: GlobalExceptionFilter },
     { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },

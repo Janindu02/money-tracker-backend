@@ -62,6 +62,7 @@ const notifications_module_1 = require("./notifications/notifications.module");
 const ai_insights_module_1 = require("./ai-insights/ai-insights.module");
 const health_module_1 = require("./health/health.module");
 const currency_module_1 = require("./currency/currency.module");
+const app_controller_1 = require("./app.controller");
 const http_exception_filter_1 = require("./common/filters/http-exception.filter");
 const transform_interceptor_1 = require("./common/interceptors/transform.interceptor");
 const logger_middleware_1 = require("./common/middleware/logger.middleware");
@@ -78,6 +79,7 @@ exports.AppModule = AppModule = __decorate([
         imports: [
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
+                ignoreEnvFile: Boolean(process.env.VERCEL),
                 load: [configuration_1.default],
                 validate: validation_schema_1.validate,
             }),
@@ -108,6 +110,7 @@ exports.AppModule = AppModule = __decorate([
             ai_insights_module_1.AiInsightsModule,
             health_module_1.HealthModule,
         ],
+        controllers: [app_controller_1.AppController],
         providers: [
             { provide: core_1.APP_FILTER, useClass: http_exception_filter_1.GlobalExceptionFilter },
             { provide: core_1.APP_INTERCEPTOR, useClass: transform_interceptor_1.TransformInterceptor },

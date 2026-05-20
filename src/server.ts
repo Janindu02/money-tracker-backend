@@ -1,4 +1,5 @@
-import { ValidationPipe } from '@nestjs/common';
+import { RequestMethod, ValidationPipe } from '@nestjs/common';
+import { getDatabaseHost } from './config/database-url';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
@@ -60,7 +61,16 @@ export async function createApp(): Promise<Express> {
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix('api/v1', {
+    exclude: [
+      { path: '', method: RequestMethod.GET },
+      { path: 'favicon.ico', method: RequestMethod.GET },
+      { path: 'favicon.png', method: RequestMethod.GET },
+    ],
+  });
+
+  const databaseUrl = config.getOrThrow<string>('databaseUrl');
+  logger.log(`Database host: ${getDatabaseHost(databaseUrl)}`, 'Bootstrap');
 
   app.useGlobalPipes(
     new ValidationPipe({

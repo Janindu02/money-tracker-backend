@@ -23,7 +23,14 @@ class EnvironmentVariables {
   FRONTEND_URL!: string;
 }
 
+import { resolveDatabaseUrl, syncDatabaseUrlEnv } from './database-url';
+
 export function validate(config: Record<string, unknown>) {
+  const databaseUrl = syncDatabaseUrlEnv() || resolveDatabaseUrl();
+  if (databaseUrl) {
+    config.DATABASE_URL = databaseUrl;
+  }
+
   const validated = plainToInstance(EnvironmentVariables, config, {
     enableImplicitConversion: true,
   });
@@ -32,9 +39,9 @@ export function validate(config: Record<string, unknown>) {
     throw new Error(errors.toString());
   }
 
-  const databaseUrl = validated.DATABASE_URL;
+  const resolvedUrl = validated.DATABASE_URL ?? databaseUrl;
   const onVercel = Boolean(process.env.VERCEL);
-  if (onVercel && /localhost|127\.0\.0\.1/.test(databaseUrl)) {
+  if (onVercel && /localhost|127\.0\.0\.1/.test(resolvedUrl)) {
     throw new Error(
       'DATABASE_URL points to localhost. In Vercel → Project → Settings → Environment Variables, set DATABASE_URL to your Neon connection string (Production + Preview), then redeploy.',
     );
